@@ -6,6 +6,7 @@ function App() {
 
   const [titulo, setTitulo] = useState('');
   const [autor, setAutor] = useState('');
+  const [posts, setPosts] = useState([]);
 
   async function handleAdd() {
 
@@ -29,17 +30,32 @@ function App() {
   }
 
   async function buscarPost() {
-    await firebase.firestore().collection('posts')
-      .doc('123')
-      .get()
-      .then((snapshot) => {
-       setTitulo(snapshot.data().titulo);
-       setAutor(snapshot.data().autor);
-      })
-      .catch((error) => {
-        alert('houve um erro.');
-      })
+    // await firebase.firestore().collection('posts')
+    //   .doc('123')
+    //   .get()
+    //   .then((snapshot) => {
+    //    setTitulo(snapshot.data().titulo);
+    //    setAutor(snapshot.data().autor);
+    //   })
+    //   .catch((error) => {
+    //     alert('houve um erro.');
+    //   })
 
+    await firebase.firestore().collection('posts')
+    .get()
+    .then((snapshot)=>{
+      let lista = [];
+      snapshot.forEach((doc)=>{
+        lista.push({
+          id:doc.id,
+          titulo: doc.data().titulo,
+          autor: doc.data().autor
+        })
+      })
+      setPosts(lista);
+    }).catch(()=>{
+      alert("erro ao recuperar posts");
+    })
   }
 
   return (
@@ -53,6 +69,19 @@ function App() {
         <input type="text" value={autor} onChange={(e) => setAutor(e.target.value)} />
         <button onClick={handleAdd}>Cadastrar</button>
         <button onClick={buscarPost}>Buscar Post</button>
+<br/>
+        <ul>
+          {
+            posts.map((post)=>{
+              return(
+                <li ley={post.id}>
+                  <span>Titulo: {post.titulo}</span><br/>
+                  <span>Autor: {post.autor}</span>
+                  </li>
+              )
+            })
+          }
+        </ul>
       </div>
     </div>
   );
