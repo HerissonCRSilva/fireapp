@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from 'react'
 import firebase from "./firebaseConnection";
 import "./style.css"
@@ -8,6 +8,24 @@ function App() {
   const [autor, setAutor] = useState('');
   const [posts, setPosts] = useState([]);
 
+  useEffect(() => {
+    async function loadPosts() {
+      await firebase.firestore().collection('posts')
+        .onSnapshot((doc) => {
+          let meusPosts = [];
+
+          doc.forEach((item) => {
+            meusPosts.push({
+              id: item.id,
+              titulo: item.data().titulo,
+              autor: item.data().autor
+            })
+          })
+          setPosts(meusPosts);
+        })
+    }
+    loadPosts();
+  }, []);
   async function handleAdd() {
 
     await firebase.firestore().collection('posts')
@@ -42,20 +60,20 @@ function App() {
     //   })
 
     await firebase.firestore().collection('posts')
-    .get()
-    .then((snapshot)=>{
-      let lista = [];
-      snapshot.forEach((doc)=>{
-        lista.push({
-          id:doc.id,
-          titulo: doc.data().titulo,
-          autor: doc.data().autor
+      .get()
+      .then((snapshot) => {
+        let lista = [];
+        snapshot.forEach((doc) => {
+          lista.push({
+            id: doc.id,
+            titulo: doc.data().titulo,
+            autor: doc.data().autor
+          })
         })
+        setPosts(lista);
+      }).catch(() => {
+        alert("erro ao recuperar posts");
       })
-      setPosts(lista);
-    }).catch(()=>{
-      alert("erro ao recuperar posts");
-    })
   }
 
   return (
@@ -69,15 +87,15 @@ function App() {
         <input type="text" value={autor} onChange={(e) => setAutor(e.target.value)} />
         <button onClick={handleAdd}>Cadastrar</button>
         <button onClick={buscarPost}>Buscar Post</button>
-<br/>
+        <br />
         <ul>
           {
-            posts.map((post)=>{
-              return(
+            posts.map((post) => {
+              return (
                 <li ley={post.id}>
-                  <span>Titulo: {post.titulo}</span><br/>
+                  <span>Titulo: {post.titulo}</span><br />
                   <span>Autor: {post.autor}</span>
-                  </li>
+                </li>
               )
             })
           }
