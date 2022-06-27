@@ -8,19 +8,37 @@ function App() {
   const [autor, setAutor] = useState('');
 
   async function handleAdd() {
-    
+
     await firebase.firestore().collection('posts')
-    .doc('12345')
-    .set({
-      titulo:titulo,
-      autor:autor
-    })
-    .then(()=>{
-      console.log('dados cadastrados com sucesso!');
-    })
-    .catch((error)=>{
-      console.log('houve um erro.');
-    })
+      // .doc('12345')
+      // .set({
+      //   titulo:titulo,
+      //   autor:autor
+      // })
+      .add({
+        titulo: titulo,
+        autor: autor
+      })
+      .then(() => {
+        alert('dados cadastrados com sucesso!');
+      })
+      .catch((error) => {
+        alert('houve um erro.');
+      })
+
+  }
+
+  async function buscarPost() {
+    await firebase.firestore().collection('posts')
+      .doc('123')
+      .get()
+      .then((snapshot) => {
+       setTitulo(snapshot.data().titulo);
+       setAutor(snapshot.data().autor);
+      })
+      .catch((error) => {
+        alert('houve um erro.');
+      })
 
   }
 
@@ -34,6 +52,7 @@ function App() {
         <label>autor: </label>
         <input type="text" value={autor} onChange={(e) => setAutor(e.target.value)} />
         <button onClick={handleAdd}>Cadastrar</button>
+        <button onClick={buscarPost}>Buscar Post</button>
       </div>
     </div>
   );
