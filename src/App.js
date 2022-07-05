@@ -8,6 +8,8 @@ function App() {
   const [titulo, setTitulo] = useState('');
   const [autor, setAutor] = useState('');
   const [posts, setPosts] = useState([]);
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
 
   useEffect(() => {
     async function loadPosts() {
@@ -96,18 +98,37 @@ function App() {
 
   async function excluirPost(id) {
     await firebase.firestore().collection('posts')
-    .doc(id).delete()
-    .then(()=>{
-      console.log('Post excluído com sucesso!');
-    }).catch(()=>{
-      console.log('Houve um erro.');
-    })
+      .doc(id).delete()
+      .then(() => {
+        console.log('Post excluído com sucesso!');
+      }).catch(() => {
+        console.log('Houve um erro.');
+      })
 
+  }
+
+  async function novoUsuario(){
+    await firebase.auth().createUserWithEmailAndPassword(email, senha)
+    .then(() => {
+      console.log('Usuário cadastrado com sucesso!');
+    }).catch((e) => {
+      console.log('Houve um erro: '+e);
+    })
   }
 
   return (
     <div className="App">
       <h1>ReachJS + Firebase ;-)</h1>
+
+      <div className="container">
+        <label>Email</label>
+        <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
+      
+        <label>Senha</label>
+        <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
+      <button onClick={novoUsuario}>Cadastrar</button><br/><br/>
+      </div>
+      <hr/><br/><br/>
       <div className="container">
         <label>ID: </label>
         <input type="text" value={idPost} onChange={(e) => setIdPost(e.target.value)} />
