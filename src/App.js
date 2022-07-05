@@ -48,19 +48,19 @@ function App() {
 
   }
 
-  async function editarPost(){
-        await firebase.firestore().collection('posts')
+  async function editarPost() {
+    await firebase.firestore().collection('posts')
       .doc(idPost).update(
         {
-          titulo:titulo,
+          titulo: titulo,
           autor: autor
         }
-      ).then(()=>{
+      ).then(() => {
         console.log('Dados atualizados com sucesso!');
         setIdPost('');
         setTitulo('');
         setAutor('');
-      }).catch(()=>{
+      }).catch(() => {
         console.log('Houve um erro.');
       })
   }
@@ -94,13 +94,24 @@ function App() {
       })
   }
 
+  async function excluirPost(id) {
+    await firebase.firestore().collection('posts')
+    .doc(id).delete()
+    .then(()=>{
+      console.log('Post excluído com sucesso!');
+    }).catch(()=>{
+      console.log('Houve um erro.');
+    })
+
+  }
+
   return (
     <div className="App">
       <h1>ReachJS + Firebase ;-)</h1>
       <div className="container">
-       <label>ID: </label>
-       <input type="text" value={idPost} onChange={(e)=>setIdPost(e.target.value)} />
-       
+        <label>ID: </label>
+        <input type="text" value={idPost} onChange={(e) => setIdPost(e.target.value)} />
+
         <label>Titulo: </label>
         <textarea type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
 
@@ -117,7 +128,10 @@ function App() {
                 <li key={post.id}>
                   <span>ID: {post.id}</span><br />
                   <span>Titulo: {post.titulo}</span><br />
-                  <span>Autor: {post.autor}</span> <br/> <br/>
+                  <span>Autor: {post.autor}</span> <br />
+                  <button onClick={() => excluirPost(post.id)}>Excluir Post</button>
+                  <br />
+                  <br />
                 </li>
               )
             })
