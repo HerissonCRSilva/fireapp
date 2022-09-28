@@ -10,6 +10,8 @@ function App() {
   const [posts, setPosts] = useState([]);
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [user, setUser] = useState(false);
+  const [userLogged, setUserLogged] = useState({});
 
   useEffect(() => {
     async function loadPosts() {
@@ -29,6 +31,28 @@ function App() {
     }
     loadPosts();
   }, []);
+
+
+  useEffect(() => {
+
+    async function checkLogin() {
+      await firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          setUser(true);
+          setUserLogged({
+            uid: user.uid,
+            email: user.email
+          })
+        } else {
+          setUser(false);
+          setUserLogged({});
+        }
+      });
+    }
+
+    checkLogin();
+  })
+
   async function handleAdd() {
 
     await firebase.firestore().collection('posts')
@@ -107,28 +131,53 @@ function App() {
 
   }
 
-  async function novoUsuario(){
+  async function novoUsuario() {
     await firebase.auth().createUserWithEmailAndPassword(email, senha)
-    .then(() => {
-      console.log('Usuário cadastrado com sucesso!');
-    }).catch((e) => {
-      console.log('Houve um erro: '+e);
-    })
+      .then((value) => {
+        console.log(value);
+        console.log('Usuário cadastrado com sucesso!');
+      }).catch((e) => {
+        console.log('Houve um erro: ', e);
+      })
+  }
+
+  async function logout() {
+    await firebase.auth().signOut();
+  }
+
+  async function fazerLogin() {
+    await firebase.auth().signInWithEmailAndPassword(email, senha)
+      .then((value) => {
+        console.log(value);
+      }).catch((e) => {
+        console.log('Houve um erro: ', e);
+      })
   }
 
   return (
     <div className="App">
       <h1>ReachJS + Firebase ;-)</h1>
 
+      {user && (
+        <div>
+          <strong>Seja bem vindo! (voce está logado!)</strong><br />
+          <span>{userLogged.uid} - {userLogged.email}</span>
+          <br /><br />
+        </div>
+      )}
+
       <div className="container">
         <label>Email</label>
         <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
-      
+
         <label>Senha</label>
         <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-      <button onClick={novoUsuario}>Cadastrar</button><br/><br/>
+        <button onClick={fazerLogin}>Fazer Login</button>
+        <button onClick={novoUsuario}>Cadastrar</button>
+        <button onClick={logout}>Sair da conta</button>
+        <br /><br />
       </div>
-      <hr/><br/><br/>
+      <hr /><br /><br />
       <div className="container">
         <label>ID: </label>
         <input type="text" value={idPost} onChange={(e) => setIdPost(e.target.value)} />
